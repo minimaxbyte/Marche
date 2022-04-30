@@ -16,10 +16,7 @@ import shutil
 import time
 from datetime import datetime
 # the secret configuration specific things
-if bool(os.environ.get("WEBHOOK", False)):
-    from sample_config import Config
-else:
-    from config import Config
+from config import Config
 # the Strings used for this "thing"
 from translation import Translation
 from plugins.custom_thumbnail import *
@@ -94,7 +91,7 @@ async def ddl_call_back(bot, update):
                 update.message.message_id,
                 c_time
             )
-        except asyncio.TimeOutError:
+        except asyncio.TimeoutError:
             await bot.edit_message_text(
                 text=Translation.SLOW_URL_DECED,
                 chat_id=update.message.chat.id,
@@ -251,23 +248,24 @@ File Size: {}""".format(url, humanbytes(total_length))
                         (total_length - downloaded) / speed) * 1000
                     estimated_total_time = elapsed_time + time_to_completion
                     try:
-                                                current_message = """**Download Status**
+                        current_message = """**Download Status**
 URL: {}
 File Size: {}
 Downloaded: {}
 ETA: {}""".format(
-                            url,
-                            humanbytes(total_length),
-                            humanbytes(downloaded),
-                            TimeFormatter(estimated_total_time)
-                        )
-                                                if current_message != display_message:
-                                                    await bot.edit_message_text(
-                                                        chat_id,
-                                                        message_id,
-                                                        text=current_message
-                                                    )
-                                                    display_message = current_message
+    url,
+    humanbytes(total_length),
+    humanbytes(downloaded),
+    TimeFormatter(estimated_total_time)
+)
+                        if current_message != display_message:
+                            await bot.edit_message_text(
+                                chat_id,
+                                message_id,
+                                text=current_message
+                            )
+                            display_message = current_message
                     except Exception as e:
                         logger.info(str(e))
+                        pass
         return await response.release()
